@@ -10,7 +10,8 @@ RUN apt-get update \
 WORKDIR /var/www/html
 COPY . /var/www/html/
 
-RUN mkdir -p /var/www/html/data/sessions \
+RUN sed -i 's/\r$//' /var/www/html/docker-start.sh \
+    && mkdir -p /var/www/html/data/sessions \
     && chown -R www-data:www-data /var/www/html/data \
     && chmod -R 770 /var/www/html/data \
     && chmod +x /var/www/html/docker-start.sh
