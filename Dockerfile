@@ -6,9 +6,10 @@ RUN apt-get update \
         libcurl4-openssl-dev \
         libpng-dev \
     && docker-php-ext-install pdo_pgsql curl gd \
-    && a2enmod headers \
-    && a2enmod rewrite \
+    && rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf \
+    && a2enmod mpm_prefork headers rewrite \
     && sed -ri 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf \
+    && apache2ctl -t \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html
