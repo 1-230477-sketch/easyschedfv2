@@ -6,8 +6,7 @@ RUN apt-get update \
         libcurl4-openssl-dev \
         libpng-dev \
     && docker-php-ext-install pdo_pgsql curl gd \
-    && a2dismod mpm_event mpm_worker 2>/dev/null || true \
-    && a2enmod mpm_prefork headers rewrite \
+    && a2enmod headers rewrite \
     && sed -ri 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf \
     && rm -rf /var/lib/apt/lists/*
 
@@ -21,6 +20,6 @@ RUN sed -i 's/\r$//' /var/www/html/docker-start.sh \
     && chmod -R 770 /var/www/html/data \
     && chmod +x /var/www/html/docker-start.sh
 
-EXPOSE 80
+EXPOSE 10000
 
 CMD ["/var/www/html/docker-start.sh"]
