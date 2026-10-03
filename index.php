@@ -7,6 +7,8 @@ easysched_start_session();
 easysched_send_security_headers();
 
 $contactEmail = easysched_contact_email();
+$_SESSION['csrf'] ??= bin2hex(random_bytes(32));
+$contactCsrf = (string) $_SESSION['csrf'];
 
 /**
  * Inline icon set. The content security policy allows no external assets, so
@@ -176,28 +178,34 @@ const EASYSCHED_SCHOOL = 'New Sinai School and Colleges Sta. Rosa, Inc.';
                     <h2>Contact Form</h2>
                     <p>Please fill out the form below with your name, email, and message. Our team will review your inquiry and respond promptly.</p>
 
-                    <form class="home-contact-form" action="mailto:<?= htmlspecialchars($contactEmail, ENT_QUOTES, 'UTF-8') ?>" method="post" enctype="text/plain">
+                    <form id="homeContactForm" class="home-contact-form" action="api.php?action=contact_message" method="post">
+                        <input type="hidden" name="csrf" value="<?= htmlspecialchars($contactCsrf, ENT_QUOTES, 'UTF-8') ?>">
+                        <div class="home-contact-honeypot" aria-hidden="true">
+                            <label for="contactWebsite">Leave this field empty</label>
+                            <input id="contactWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+                        </div>
                         <div class="home-form-row">
                             <div class="home-form-field">
                                 <label for="contactFirstName">First Name</label>
-                                <input id="contactFirstName" name="first_name" type="text" placeholder="John" autocomplete="given-name">
+                                <input id="contactFirstName" name="first_name" type="text" placeholder="John" autocomplete="given-name" maxlength="80" required>
                             </div>
                             <div class="home-form-field">
                                 <label for="contactLastName">Last Name</label>
-                                <input id="contactLastName" name="last_name" type="text" placeholder="Doe" autocomplete="family-name">
+                                <input id="contactLastName" name="last_name" type="text" placeholder="Doe" autocomplete="family-name" maxlength="80" required>
                             </div>
                         </div>
 
                         <div class="home-form-field">
                             <label for="contactEmailInput">Email</label>
-                            <input id="contactEmailInput" name="email" type="email" placeholder="example@mail.com" autocomplete="email">
+                            <input id="contactEmailInput" name="email" type="email" placeholder="example@mail.com" autocomplete="email" maxlength="254" required>
                         </div>
 
                         <div class="home-form-field">
                             <label for="contactMessage">Message</label>
-                            <textarea id="contactMessage" name="message" rows="5" placeholder="Enter your message"></textarea>
+                            <textarea id="contactMessage" name="message" rows="5" placeholder="Enter your message" maxlength="3000" required></textarea>
                         </div>
 
+                        <p id="homeContactStatus" class="home-contact-status" role="status" aria-live="polite"></p>
                         <button class="home-contact-submit" type="submit">Submit <span aria-hidden="true">✦</span></button>
                     </form>
                 </div>

@@ -100,11 +100,36 @@ function easysched_is_https(): bool
     if ((string) ($_SERVER['SERVER_PORT'] ?? '') === '443') {
         return true;
     }
+    if (filter_var(easysched_env_string('EASYSCHED_TRUST_PROXY'), FILTER_VALIDATE_BOOLEAN)) {
+        return strtolower(trim((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))) === 'https';
+    }
     return false;
+}
+
+function easysched_enforce_https(): void
+{
+    if (!filter_var(easysched_env_string('EASYSCHED_FORCE_HTTPS'), FILTER_VALIDATE_BOOLEAN) || easysched_is_https()) {
+        return;
+    }
+
+    $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
+    $requestUri = (string) ($_SERVER['REQUEST_URI'] ?? '/');
+    if (
+        !preg_match('/\A(?:[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?|\[[A-Fa-f0-9:.]+\])(?::[0-9]{1,5})?\z/', $host)
+        || !str_starts_with($requestUri, '/')
+        || str_starts_with($requestUri, '//')
+        || preg_match('/[\r\n]/', $requestUri)
+    ) {
+        throw new RuntimeException('Cannot safely redirect this request to HTTPS.');
+    }
+
+    header('Location: https://' . $host . $requestUri, true, 308);
+    exit;
 }
 
 function easysched_start_session(): void
 {
+    easysched_enforce_https();
     $secure = easysched_is_https();
     $sessionPath = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'sessions';
     if (!is_dir($sessionPath)) {
