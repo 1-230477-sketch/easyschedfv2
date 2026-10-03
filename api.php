@@ -315,7 +315,37 @@ function issue_email_otp(PDO $pdo, string $purpose, string $identifier, string $
     $insert->execute([$purpose, $identifier, password_hash($code, PASSWORD_DEFAULT), $now + 600, $now]);
     $label = $purpose === 'REGISTRATION' ? 'registration verification' : 'password reset';
     $safeCode = htmlspecialchars($code, ENT_QUOTES, 'UTF-8');
-    send_email_message($email, 'EasySched verification code', '<p>Your EasySched ' . $label . ' code is:</p><p style="font-size:28px;font-weight:700;letter-spacing:6px">' . $safeCode . '</p><p>This code expires in 10 minutes. Do not share it with anyone.</p>');
+        $safeLabel = htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
+        $html = <<<HTML
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>EasySched verification code</title></head>
+<body style="margin:0;padding:24px 12px;background-color:#f4f6f2;font-family:Arial,Helvetica,sans-serif;color:#182d28;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+        <tr><td align="center">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;border-collapse:separate;border-spacing:0;background-color:#ffffff;border:1px solid #d8e3db;border-radius:12px;overflow:hidden;">
+                <tr><td style="padding:28px 32px;background-color:#d2e8dc;border-bottom:4px solid #4f8b67;">
+                    <div style="font-size:22px;line-height:1.3;font-weight:700;color:#183f34;">EasySched</div>
+                    <div style="padding-top:5px;font-size:12px;line-height:1.5;letter-spacing:2px;text-transform:uppercase;color:#2d4f45;">Class scheduling made simple</div>
+                </td></tr>
+                <tr><td style="padding:32px;">
+                    <h1 style="margin:0 0 16px;font-size:25px;line-height:1.3;color:#182d28;">Your verification code</h1>
+                    <p style="margin:0 0 20px;font-size:16px;line-height:1.6;color:#2d4f45;">Use this code to complete your EasySched {$safeLabel}.</p>
+                    <div style="padding:20px 12px;background-color:#e5f1ea;border:1px solid #d2e8dc;border-radius:8px;text-align:center;">
+                        <span style="font-size:32px;line-height:1.3;font-weight:700;letter-spacing:8px;color:#183f34;">{$safeCode}</span>
+                    </div>
+                    <p style="margin:20px 0 0;font-size:14px;line-height:1.6;color:#5d736b;">This code expires in <strong>10 minutes</strong>. Do not share it with anyone.</p>
+                </td></tr>
+                <tr><td style="padding:18px 32px;background-color:#f4f6f2;border-top:1px solid #e4ebe5;">
+                    <p style="margin:0;font-size:12px;line-height:1.6;color:#5d736b;">This is an automated message from EasySched. If you did not request this code, you can ignore this email.</p>
+                </td></tr>
+            </table>
+        </td></tr>
+    </table>
+</body>
+</html>
+HTML;
+        send_email_message($email, 'EasySched verification code', $html);
     return ['message' => 'A six-digit verification code was sent to your email.'];
 }
 
