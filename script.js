@@ -397,7 +397,7 @@
     $('#scheduleHealthBadge').textContent = run ? (validation?.valid ? 'Validated' : 'Review required') : 'No schedule';
     const checks = Object.entries(validation?.checks || {});
     const healthPanel = $('#dashboardHealth')?.closest('.panel'); const runPanel = $('#runSummary')?.closest('.panel');
-    if (healthPanel) healthPanel.hidden = role() === 'admin'; if (runPanel) runPanel.hidden = role() === 'admin';
+    if (healthPanel) healthPanel.hidden = true; if (runPanel) runPanel.hidden = true;
     $('#dashboardHealth').innerHTML = checks.length ? checks.map(([item, passed]) => `<div class="health-row"><span>${esc(item.replaceAll('_', ' '))}</span><strong class="${passed ? 'health-ok' : 'health-error'}">${passed ? 'Passed' : 'Failed'}</strong></div>`).join('') : emptyState('No validation yet', 'Generate a schedule to see the hard-constraint report.');
     $('#runSummary').innerHTML = run ? [`<div class="summary-row"><span>Run status</span><strong>${esc(run.status)}</strong></div>`, `<div class="summary-row"><span>Assigned tasks</span><strong>${assigned} / ${total}</strong></div>`, `<div class="summary-row"><span>Search nodes</span><strong>${Number(run.diagnostics?.search_nodes || 0).toLocaleString()}</strong></div>`].join('') : emptyState('No generation record', 'Run the scheduler to record diagnostics.');
     const upcoming = list.slice(0, 6);
@@ -405,16 +405,26 @@
     $$('.manage-only').forEach((element) => { element.hidden = !canSeeGeneration(); });
   }
 
+  function scheduleTypeClass(roomType) {
+    const normalized = String(roomType || '').trim().toUpperCase();
+    if (normalized === 'LAB' || normalized === 'LABORATORY') return 'lab';
+    if (normalized === 'SPECIAL' || normalized === 'OTHER') return 'other';
+    return 'lecture';
+  }
+
   function scheduleRow(row, includeAction = false) {
     const action = includeAction && canManage() ? `<td class="manage-column"><div class="row-actions"><button class="button button-ghost button-small edit-entry" data-entry-id="${Number(row.id)}" type="button">Edit</button><button class="button button-danger button-small cancel-entry" data-entry-id="${Number(row.id)}" type="button">Cancel</button></div></td>` : '';
-    return `<tr><td>${esc(row.day_name)}</td><td><strong>${esc(row.time_label || row.slot_label)}</strong></td><td><strong>${esc(row.subject_code)}</strong><span class="subline">${esc(row.subject_name)}</span></td><td>${esc(row.section_code)}<span class="subline">${esc(row.program_code)}</span></td><td>${esc(row.instructor_name)}</td><td>${esc(row.room_code)}<span class="subline">${Number(row.room_capacity)} seats</span></td>${action}</tr>`;
+    const roomType = row.room_type || 'LECTURE';
+    const colorClass = scheduleTypeClass(roomType);
+    const roomTypeLabel = colorClass === 'lab' ? 'Laboratory' : colorClass === 'other' ? 'Special' : 'Lecture';
+    return `<tr class="schedule-color-${colorClass}"><td>${esc(row.day_name)}</td><td><strong>${esc(row.time_label || row.slot_label)}</strong></td><td><strong>${esc(row.subject_code)}</strong><span class="subline">${esc(row.subject_name)}</span></td><td>${esc(row.section_code)}<span class="subline">${esc(row.program_code)}</span></td><td>${esc(row.instructor_name)}</td><td><strong>${esc(row.room_code)}</strong><span class="room-type-badge ${colorClass}">${roomTypeLabel}</span><span class="subline">${Number(row.room_capacity)} seats</span></td>${action}</tr>`;
   }
 
   function visibleScheduleRows() {
     const query = state.query.toLowerCase();
     return schedules().filter((row) => {
-      const selected = state.scheduleView === 'all' || state.scheduleFilter === 'all' || (state.scheduleView === 'section' && String(row.section_id) === state.scheduleFilter) || (state.scheduleView === 'instructor' && String(row.instructor_id) === state.scheduleFilter) || (state.scheduleView === 'room' && String(row.room_id) === state.scheduleFilter);
-      const searchable = `${row.subject_code} ${row.subject_name} ${row.section_code} ${row.instructor_name} ${row.room_code} ${row.day_name} ${row.slot_label}`.toLowerCase();
+      const selected = state.scheduleView === 'all' || state.scheduleFilter === 'all' || (state.scheduleView === 'section' && String(row.section_id) === state.scheduleFilter) || (state.scheduleView === 'instructor' && String(row.instructor_id) === state.scheduleFilter) || (state.scheduleView === 'room' && String(row.room_id) === state.scheduleFilter) || (state.scheduleView === 'room_type' && scheduleTypeClass(row.room_type) === state.scheduleFilter);
+      const searchable = `${row.subject_code} ${row.subject_name} ${row.section_code} ${row.instructor_name} ${row.room_code} ${row.room_type} ${row.day_name} ${row.slot_label}`.toLowerCase();
       return selected && (!query || searchable.includes(query));
     });
   }
@@ -427,8 +437,14 @@
     const printMeta = $('#printMeta'); if (printMeta) printMeta.textContent = `Weekly class schedule · ${termLabel}`;
     renderFilterValues();
     const rows = visibleScheduleRows(); $('#scheduleCountLabel').textContent = `${rows.length} ${rows.length === 1 ? 'class' : 'classes'}`;
+    const laboratoryView = (state.scheduleView === 'room_type' && state.scheduleFilter === 'lab')
+      || (rows.length > 0 && rows.every((row) => scheduleTypeClass(row.room_type) === 'lab'));
+    $('.schedule-table-panel').classList.toggle('schedule-table-panel-lab', laboratoryView);
     const columnCount = canManage() ? 7 : 6;
-    $('#scheduleTableBody').innerHTML = rows.length ? rows.map((row) => scheduleRow(row, true)).join('') : `<tr><td colspan="${columnCount}">${emptyState('No classes match this view', 'Change the filter above, or generate a schedule.')}</td></tr>`;
+    const emptyStateClass = state.scheduleView === 'room_type' && state.scheduleFilter !== 'all'
+      ? `schedule-color-${scheduleTypeClass(state.scheduleFilter)}`
+      : '';
+    $('#scheduleTableBody').innerHTML = rows.length ? rows.map((row) => scheduleRow(row, true)).join('') : `<tr class="${emptyStateClass}"><td colspan="${columnCount}">${emptyState('No classes match this view', 'Change the filter above, or generate a schedule.')}</td></tr>`;
     const hasRun = Boolean(state.snapshot.active_run);
     const valid = Boolean(state.snapshot.validation?.valid);
     $('#conflictBadge').textContent = hasRun ? (valid ? 'Validated' : 'Conflict found') : 'No run';
@@ -508,6 +524,7 @@
     if (state.scheduleView === 'section') values = state.snapshot.sections.map((item) => [item.id, `${item.code} - ${item.program_code}`]);
     if (state.scheduleView === 'instructor') values = state.snapshot.instructors.map((item) => [item.id, item.name]);
     if (state.scheduleView === 'room') values = state.snapshot.rooms.map((item) => [item.id, item.code]);
+    if (state.scheduleView === 'room_type') values = [['lecture', 'Lecture'], ['lab', 'Laboratory'], ['other', 'Special']];
     $('#scheduleFilterValueWrap').hidden = state.scheduleView === 'all';
     select.innerHTML = `<option value="all">All</option>${values.map(([id, label]) => `<option value="${esc(id)}">${esc(label)}</option>`).join('')}`;
     select.value = values.some(([id]) => String(id) === previous) ? previous : 'all'; state.scheduleFilter = select.value;
@@ -545,7 +562,7 @@
       const cards = entries.map((row) => {
         const subject = subjectById(row.subject_id);
         const roomType = row.room_type || subject?.room_type || 'LECTURE';
-        const eventClass = roomType === 'LAB' ? 'lab' : roomType === 'SPECIAL' ? 'other' : 'lecture';
+        const eventClass = scheduleTypeClass(roomType);
         return `<div class="calendar-event ${eventClass}" title="${esc(`${row.subject_code} | ${row.section_code} | ${row.room_code} | ${row.instructor_name}`)}"><strong>${esc(row.subject_code)}</strong><span>${esc(row.section_code)} · ${esc(row.room_code)}</span><span>${esc(row.instructor_name)}</span></div>`;
       }).join('');
       const stackDensity = entries.length === 1 ? 'calendar-stack-single' : 'calendar-stack-multiple';
@@ -687,6 +704,7 @@
     ], profile);
     $('#profileVerified').checked = Boolean(profile.verified_at);
     $('#profileVerificationStatus').textContent = profile.verified_at ? 'Information verified' : '';
+    ['basics', 'address', 'parents'].forEach((section) => setProfileSectionEditing(section, false));
   }
 
   function setProfileSectionEditing(section, editing) {
@@ -816,6 +834,32 @@
   function toggleSidebar() { const open = $('#sidebar').classList.toggle('open'); $('#sidebarBackdrop').classList.toggle('active', open); $('#menuButton').setAttribute('aria-expanded', String(open)); }
   function isTypingIn(target) { return target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName)); }
 
+  function initHomeScrollReveals() {
+    const home = $('#publicHome');
+    if (!home || !('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const groups = $$('.home-section-heading, .home-feature-grid, .home-step-grid, .home-benefit-grid, .home-about-copy, .home-contact-wrap', home)
+      .map((group) => Array.from(group.children));
+    if (!groups.some((group) => group.length)) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+    home.classList.add('has-scroll-reveals');
+    groups.forEach((group) => {
+      group.forEach((element, index) => {
+        element.classList.add('home-reveal');
+        element.style.setProperty('--home-reveal-delay', `${Math.min(index, 5) * 85}ms`);
+        observer.observe(element);
+      });
+    });
+  }
+
   function bindEvents() {
     $('#brandPopupTrigger').addEventListener('click', openBrandPopup);
     $('#brandPopupClose').addEventListener('click', closeBrandPopup);
@@ -851,6 +895,7 @@
       }
     });
     $('#modalBackdrop').addEventListener('mousedown', (event) => { if (event.target === $('#modalBackdrop')) closeModal(); });
+    initHomeScrollReveals();
     const homePreview = $('#homeDashboardPreview');
     if (homePreview && window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
       const updateHomeParallax = () => {

@@ -363,11 +363,11 @@ const EASYSCHED_SCHOOL = 'New Sinai School and Colleges Sta. Rosa, Inc.';
                     </div>
                     <div class="metric-grid" id="metricGrid"></div>
                     <div class="dashboard-grid">
-                        <article class="panel panel-large">
+                        <article class="panel panel-large" hidden>
                             <div class="panel-heading"><div><p class="eyebrow">Latest publication</p><h3>Schedule health</h3></div><span class="badge" id="scheduleHealthBadge">No schedule</span></div>
                             <div id="dashboardHealth" class="health-list"></div>
                         </article>
-                        <article class="panel">
+                        <article class="panel" hidden>
                             <div class="panel-heading"><div><p class="eyebrow">At a glance</p><h3>Generation record</h3></div></div>
                             <div id="runSummary" class="summary-list"></div>
                         </article>
@@ -397,7 +397,7 @@ const EASYSCHED_SCHOOL = 'New Sinai School and Colleges Sta. Rosa, Inc.';
                         </div>
                     </div>
                     <div class="filter-bar">
-                        <label class="field-inline">View<select id="scheduleViewFilter"><option value="all">All classes</option><option value="section">By section</option><option value="instructor">By instructor</option><option value="room">By room</option></select></label>
+                        <label class="field-inline">View<select id="scheduleViewFilter"><option value="all">All classes</option><option value="section">By section</option><option value="instructor">By instructor</option><option value="room">By room</option><option value="room_type">By room type</option></select></label>
                         <label class="field-inline" id="scheduleFilterValueWrap">Filter<select id="scheduleFilterValue"><option value="all">All</option></select></label>
                         <span class="filter-spacer"></span>
                         <span class="legend"><span class="legend-dot lecture"></span>Lecture <span class="legend-dot lab"></span>Laboratory <span class="legend-dot other"></span>Other</span>
@@ -533,14 +533,6 @@ const EASYSCHED_SCHOOL = 'New Sinai School and Colleges Sta. Rosa, Inc.';
                             </form>
                         </article>
                     </div>
-                    <article class="panel security-note">
-                        <div class="security-icon"><?= easysched_icon('shield', '22') ?></div>
-                        <div>
-                            <p class="eyebrow">Deployment boundary</p>
-                            <h3>Defense build security posture</h3>
-                            <p>This build uses server-side sessions, password hashes, CSRF tokens, prepared PostgreSQL queries, role checks, audit logs, and a restrictive content security policy. Use HTTPS before handling real student records.</p>
-                        </div>
-                    </article>
                 </section>
 
                 <section class="page help-page" id="page-help" data-page="help" aria-labelledby="helpHeading" hidden>
