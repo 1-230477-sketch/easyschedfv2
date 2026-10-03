@@ -861,6 +861,34 @@
   }
 
   function bindEvents() {
+    const homeContactForm = $('#homeContactForm');
+    homeContactForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const status = $('#homeContactStatus');
+      const submit = homeContactForm.querySelector('[type="submit"]');
+      submit.disabled = true;
+      status.textContent = 'Sending your message…';
+      status.removeAttribute('data-error');
+      try {
+        const response = await fetch(homeContactForm.action, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.fromEntries(new FormData(homeContactForm).entries()))
+        });
+        const payload = await response.json();
+        if (!response.ok || payload.ok !== true) {
+          throw new Error(payload.error || 'Your message could not be sent. Please try again later.');
+        }
+        status.textContent = payload.data?.message || 'Your message has been sent.';
+        homeContactForm.reset();
+      } catch (error) {
+        status.textContent = error.message || 'Your message could not be sent. Please try again later.';
+        status.setAttribute('data-error', 'true');
+      } finally {
+        submit.disabled = false;
+      }
+    });
     $('#brandPopupTrigger').addEventListener('click', openBrandPopup);
     $('#brandPopupClose').addEventListener('click', closeBrandPopup);
     $('#brandPopup').addEventListener('mousedown', (event) => { if (event.target === $('#brandPopup')) closeBrandPopup(); });
