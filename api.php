@@ -1619,7 +1619,7 @@ function room_request_conflicts(PDO $pdo, int $roomId, int $instructorId, int $s
         }
     }
 
-    $requests = $pdo->prepare("SELECT sr.id, sr.room_id, sr.instructor_id, co.section_id, sr.status, s.name AS subject_name, ts.start_time, COALESCE(sr.requested_end_time, ts.end_time) AS end_time FROM schedule_requests sr JOIN course_offerings co ON co.id = sr.offering_id JOIN subjects s ON s.id = co.subject_id JOIN time_slots ts ON ts.id = sr.slot_id WHERE (sr.room_id = ? OR sr.instructor_id = ? OR co.section_id = ?) AND sr.term_id = ? AND sr.day_of_week = ? AND sr.status IN ('PENDING', 'APPROVED') AND (sr.request_date = ? OR (sr.request_date IS NULL AND sr.note LIKE ?)) AND (? IS NULL OR sr.id <> ?)");
+    $requests = $pdo->prepare("SELECT sr.id, sr.room_id, sr.instructor_id, co.section_id, sr.status, s.name AS subject_name, ts.start_time, COALESCE(sr.requested_end_time, ts.end_time) AS end_time FROM schedule_requests sr JOIN course_offerings co ON co.id = sr.offering_id JOIN subjects s ON s.id = co.subject_id JOIN time_slots ts ON ts.id = sr.slot_id WHERE (sr.room_id = ? OR sr.instructor_id = ? OR co.section_id = ?) AND sr.term_id = ? AND sr.day_of_week = ? AND sr.status IN ('PENDING', 'APPROVED') AND (sr.request_date = ? OR (sr.request_date IS NULL AND sr.note LIKE ?)) AND (CAST(? AS INTEGER) IS NULL OR sr.id <> ?)");
     $requests->execute([$roomId, $instructorId, $sectionId, $termId, $day, $date, '[REQUEST_DATE:' . $date . ']%', $excludeRequestId, $excludeRequestId]);
     foreach ($requests->fetchAll() as $request) {
         if ($request['start_time'] < $end && $request['end_time'] > $start) {
