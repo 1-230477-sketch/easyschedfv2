@@ -191,7 +191,7 @@ const EASYSCHED_SCHOOL = 'New Sinai School and Colleges Sta. Rosa, Inc.';
             <p class="eyebrow">Academic scheduling workspace</p>
             <h1 id="loginTitle">Sign in to manage schedules</h1>
             <p class="muted">Secure server sessions, conflict-aware generation, and a published timetable your faculty can trust.</p>
-            <form id="loginForm" novalidate>
+            <form id="loginForm" method="post" novalidate>
                 <div class="field">
                     <label for="loginUsername">Username</label>
                     <input id="loginUsername" name="username" autocomplete="username" required maxlength="80" spellcheck="false">
@@ -225,7 +225,7 @@ const EASYSCHED_SCHOOL = 'New Sinai School and Colleges Sta. Rosa, Inc.';
             <p class="eyebrow">Enrollment access request</p>
             <h1>Request a student account</h1>
             <p class="muted">Fill in your student details. An administrator approves the request before your first sign-in.</p>
-            <form id="registrationForm" novalidate>
+            <form id="registrationForm" method="post" novalidate>
                 <div class="form-grid">
                     <div class="field"><label for="registrationFirstName">First name</label><input id="registrationFirstName" required maxlength="80" autocomplete="given-name"></div>
                     <div class="field"><label for="registrationMiddleName">Middle name <span class="muted"></span></label><input id="registrationMiddleName" maxlength="80" autocomplete="additional-name"></div>
@@ -258,7 +258,7 @@ const EASYSCHED_SCHOOL = 'New Sinai School and Colleges Sta. Rosa, Inc.';
             <p class="eyebrow">Account recovery</p>
             <h1>Reset your password</h1>
             <p class="muted">We send a one-time code to the email address on file for the account.</p>
-            <form id="forgotPasswordForm" novalidate>
+            <form id="forgotPasswordForm" method="post" novalidate>
                 <div class="field">
                     <label for="resetAccount">Username or email</label>
                     <div class="field-with-action">
@@ -393,7 +393,7 @@ const EASYSCHED_SCHOOL = 'New Sinai School and Colleges Sta. Rosa, Inc.';
                     <div class="page-heading"><div><p class="eyebrow"></p><h2 id="roomRequestsHeading">Room requests</h2><p class="muted">Request a room and time for an assigned class. An administrator must approve it before it is added to the timetable.</p></div></div>
                     <article class="panel instructor-only" id="scheduleRequestPanel" hidden>
                         <div class="panel-heading"><div><p class="eyebrow">Instructor request</p><h3>Request a room and time</h3></div></div>
-                        <form id="scheduleRequestForm" class="form-grid">
+                        <form id="scheduleRequestForm" class="form-grid" method="post">
                             <div class="field"><label for="requestOffering">Class assignment</label><select id="requestOffering" required></select></div>
                             <div class="field"><label for="requestDate">Exact date</label><input id="requestDate" type="date" required></div>
                             <div class="field"><label for="requestStartTime">Start time</label><div class="time-input-group"><input id="requestStartTime" value="08:00" inputmode="numeric" maxlength="5" pattern="[0-9]{2}:[0-9]{2}" placeholder="HH:MM" required><select id="requestStartPeriod" aria-label="Start time period"><option>AM</option><option>PM</option></select></div></div>
@@ -487,7 +487,7 @@ const EASYSCHED_SCHOOL = 'New Sinai School and Colleges Sta. Rosa, Inc.';
                     <div class="settings-grid">
                         <article class="panel manage-only">
                             <div class="panel-heading"><div><p class="eyebrow">Academic period</p><h3>Active term</h3></div></div>
-                            <form id="settingsForm">
+                            <form id="settingsForm" method="post">
                                 <div class="field"><label for="academicYear">Academic year</label><input id="academicYear" pattern="20[0-9]{2}-20[0-9]{2}" required placeholder="2026-2027"><span class="field-hint">Format: 2026-2027.</span></div>
                                 <div class="field"><label for="semester">Semester</label><select id="semester"><option>First Semester</option><option>Second Semester</option></select></div>
                                 <button class="button button-primary" type="submit">Save term</button>
@@ -495,7 +495,7 @@ const EASYSCHED_SCHOOL = 'New Sinai School and Colleges Sta. Rosa, Inc.';
                         </article>
                         <article class="panel">
                             <div class="panel-heading"><div><p class="eyebrow">Account</p><h3>Change password</h3></div></div>
-                            <form id="passwordForm">
+                            <form id="passwordForm" method="post">
                                 <div class="field"><label for="currentPassword">Current password</label><input id="currentPassword" type="password" required autocomplete="current-password"></div>
                                 <div class="field"><label for="newPassword">New password</label><input id="newPassword" type="password" minlength="10" required autocomplete="new-password"><span class="field-hint">At least 10 characters.</span></div>
                                 <div class="field"><label for="confirmPassword">Confirm new password</label><input id="confirmPassword" type="password" minlength="10" required autocomplete="new-password"></div>
@@ -523,7 +523,7 @@ const EASYSCHED_SCHOOL = 'New Sinai School and Colleges Sta. Rosa, Inc.';
                 <div><p class="eyebrow" id="modalEyebrow">Record</p><h2 id="modalTitle">Edit record</h2></div>
                 <button class="icon-button" id="modalCloseButton" type="button" aria-label="Close dialog"><?= easysched_icon('close', '18') ?></button>
             </div>
-            <form id="modalForm">
+            <form id="modalForm" method="post">
                 <div class="modal-body" id="modalBody"></div>
                 <div class="modal-footer">
                     <button class="button button-ghost" id="modalCancelButton" type="button">Cancel</button>

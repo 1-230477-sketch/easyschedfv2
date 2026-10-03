@@ -670,7 +670,7 @@
         : `<input id="${id}" name="${key}" type="${type}" value="${esc(profile[key] || '')}" maxlength="${maxLength}" ${requiredAttribute}>`;
       return `<div class="field"><label for="${id}">${esc(label)}${required ? ' <span class="required-mark">*</span>' : ''}</label>${control}</div>`;
     }).join('');
-    return `<dl class="profile-values">${values}</dl><form class="profile-editor" data-profile-form="${section}" hidden><div class="profile-form-grid">${controls}</div><div class="profile-actions"><button class="button button-primary button-small" type="submit">Save changes</button><button class="button button-ghost button-small" type="button" data-profile-cancel="${section}">Cancel</button></div></form>`;
+    return `<dl class="profile-values">${values}</dl><form class="profile-editor" data-profile-form="${section}" method="post" hidden><div class="profile-form-grid">${controls}</div><div class="profile-actions"><button class="button button-primary button-small" type="submit">Save changes</button><button class="button button-ghost button-small" type="button" data-profile-cancel="${section}">Cancel</button></div></form>`;
   }
 
   function renderProfile() {
