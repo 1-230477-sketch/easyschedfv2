@@ -325,8 +325,17 @@ function issue_email_otp(PDO $pdo, string $purpose, string $identifier, string $
         <tr><td align="center">
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;border-collapse:separate;border-spacing:0;background-color:#ffffff;border:1px solid #d8e3db;border-radius:12px;overflow:hidden;">
                 <tr><td style="padding:28px 32px;background-color:#d2e8dc;border-bottom:4px solid #4f8b67;">
-                    <div style="font-size:22px;line-height:1.3;font-weight:700;color:#183f34;">EasySched</div>
-                    <div style="padding-top:5px;font-size:12px;line-height:1.5;letter-spacing:2px;text-transform:uppercase;color:#2d4f45;">Class scheduling made simple</div>
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+                        <tr>
+                            <td width="76" valign="middle" style="padding-right:16px;">
+                                <img src="https://easysched.tech/assets/school-logo.png" width="64" height="64" alt="New Sinai School and Colleges" style="display:block;width:64px;height:64px;border:0;">
+                            </td>
+                            <td valign="middle">
+                                <div style="font-size:22px;line-height:1.3;font-weight:700;color:#183f34;">EasySched</div>
+                                <div style="padding-top:5px;font-size:12px;line-height:1.5;letter-spacing:2px;text-transform:uppercase;color:#2d4f45;">Class scheduling made simple</div>
+                            </td>
+                        </tr>
+                    </table>
                 </td></tr>
                 <tr><td style="padding:32px;">
                     <h1 style="margin:0 0 16px;font-size:25px;line-height:1.3;color:#182d28;">Your verification code</h1>
